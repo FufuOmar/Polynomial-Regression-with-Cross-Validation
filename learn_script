@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# set APP_PATH = /Applications/Octave.app/Contents/Resources/bin/octave -q
+# set APP_PATH = /Applications/MATLAB_R2010b.app/bin/matlab -nosplash -nojvm -nodesktop -r
+
+# /usr/local/octave/3.8.0/bin/octave-3.8.0 -q learn_linear_regression.m
+python3 -q learn_linear_regression.py
+
+exit
+
