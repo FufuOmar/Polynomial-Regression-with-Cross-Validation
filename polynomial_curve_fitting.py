@@ -1,11 +1,7 @@
 import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
-import subprocess
-#subprocess.run(['bash', 'learn_script'])
-# ============================================
 # Load the training data
-# ============================================
 FOLDS = 12
 DEGREES = 20
 train_data = np.loadtxt('train.dat')
@@ -14,9 +10,7 @@ debt = train_data[:, 1]       # Second column: debt %
 avg_train_rmse = np.zeros(DEGREES + 1)
 avg_test_rmse = np.zeros(DEGREES + 1)
 
-# ============================================
 # Split the Data
-# ============================================
 start = 0
 n = len(train_data) # 60
 fold_size = n // FOLDS # Whole number
@@ -39,11 +33,9 @@ for d in range(DEGREES + 1):
         cv_train = np.concatenate(
             (train_data[:start], train_data[end:])
         )
-        print(f"Fold {i+1}:\n Test:\n {cv_test}")
+        #print(f"Fold {i+1}:\n Test:\n {cv_test}")
 
-        # ============================================
         # Normalization
-        # ============================================
 
         # Scales (year - avg) / std, where avg is avg of the years in the data
         scaler_x = StandardScaler()
@@ -68,15 +60,11 @@ for d in range(DEGREES + 1):
             cv_train_poly_scaled = np.hstack((np.ones((cv_train_poly_scaled.shape[0], 1)), cv_train_poly_scaled)) # Add bias term to the polynomial features in the training set
             cv_test_poly_scaled = np.hstack((np.ones((cv_test_poly_scaled.shape[0], 1)), cv_test_poly_scaled)) # Add bias term to the polynomial features in the test set
 
-        # ============================================
         # Calculate Weights
-        # ============================================
         regr = Ridge(alpha=0, fit_intercept=False, solver='cholesky')
         regr.fit(cv_train_poly_scaled, cv_train_debt_scaled)
 
-        # ============================================
         # Predictions
-        # ============================================
         cv_train_predict_scaled = regr.predict(cv_train_poly_scaled)
         cv_test_predict_scaled  = regr.predict(cv_test_poly_scaled)
 
@@ -88,9 +76,7 @@ for d in range(DEGREES + 1):
         cv_train_actual = cv_train[:, 1].reshape(-1, 1)
         cv_test_actual  = cv_test[:, 1].reshape(-1, 1)
 
-        # ============================================
         # Calulate RMSE 
-        # ============================================
         train_rmse = np.sqrt(np.mean((cv_train_actual - cv_train_predict) ** 2))
         test_rmse  = np.sqrt(np.mean((cv_test_actual  - cv_test_predict)  ** 2))
 
@@ -107,9 +93,7 @@ for d in range(DEGREES + 1):
 d_star = np.argmin(avg_test_rmse)
 print(f"Best Degree (d*): {d_star}")
 
-# ============================================
 # Retrain on ALL training data with d* 
-# ============================================
 final_scaler_x = StandardScaler()
 train_years_scaled = final_scaler_x.fit_transform(years.reshape(-1,1)) 
 final_scaler_y = StandardScaler()
@@ -134,9 +118,7 @@ final_train_prediction = final_scaler_y.inverse_transform(final_train_prediction
 # Calculate RMSE
 final_train_rmse = np.sqrt(np.mean((debt.reshape(-1, 1) - final_train_prediction) ** 2))
 
-# ============================================
 # Evaluate on test.dat
-# ============================================
 test_data = np.loadtxt('test.dat')
 test_years = test_data[:, 0]
 test_debt = test_data[:, 1]
@@ -156,9 +138,7 @@ final_test_prediction = final_scaler_y.inverse_transform(final_test_prediction_s
 final_test_rmse = np.sqrt(np.mean((test_debt.reshape(-1, 1) - final_test_prediction) ** 2))
 
 
-# ============================================
 # Print Results
-# ============================================
 print("\n" + "="*60)
 print("FINAL RESULTS")
 print("="*60)
@@ -169,9 +149,7 @@ print("\nCoefficient Weights:")
 for i, w in enumerate(weights.coef_.flatten()):
     print(f"  w{i} = {w:.18e}")
 
-# ============================================
 # Create Plot
-# ============================================
 import matplotlib.pyplot as plt
 
 # Create smooth curve from 1938 to 2024
@@ -201,9 +179,5 @@ plt.savefig('polynomial_fit.png', dpi=300)
 plt.show()
 
 print("\nPlot saved as 'polynomial_fit.png'")
-
-
-
-
 
 
